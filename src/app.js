@@ -1,34 +1,23 @@
 import express from 'express';
-import { ProductManager } from './ProductManager.js';
-
+import routerProd from './routes/products.routes.js';
+import routerCart from './routes/cart.routes.js';
+import { __dirname } from './path.js';
 const app = express();
 
-const PORT = 4000;
+const PORT = 8080;
 
-const manager = new ProductManager('./src/products.json');
+//Middlewares
 
+app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-app.get('/', (req, res) => {
-	res.send('Hola desde la página de inicio de la app');
-});
+// Routes
+app.use('/static', express.static(`${__dirname}/public`));
+app.use('/api/products', routerProd); // defino que mi app va a usar lo que venga en routerProd para la ruta que defina
+app.use('/api/carts', routerCart);
 
-app.get('/productos/:id', async (req, res) => {
-	const product = await manager.getProductById(parseInt(req.params.id));
-	product ? res.send(product) : res.send('Producto no encontrado');
-});
-
-app.get('/productos', async (req, res) => {
-	const { limit } = req.query;
-	const products = await manager.getProducts();
-	limit ? res.send(products.slice(0, limit)) : res.send(products);
-});
-
-app.get('*', (req, res) => {
-	res.send('Error 404');
-});
-
+// Server
 app.listen(PORT, () => {
-	console.log(`Server on PORT: ${PORT}
-http://localhost:${PORT}`);
+	console.log(`Servidor desde puerto: ${PORT}`);
+	console.log(`http://localhost:${PORT}`);
 });
